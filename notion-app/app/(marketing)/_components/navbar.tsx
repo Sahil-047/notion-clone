@@ -29,12 +29,12 @@ export const Navbar = () => {
                 {!isAuthenticated && !isLoading && (
                     <>
                         <SignInButton mode="modal">
-                            <Button variant="ghost" size="sm">
+                            <Button>
                                 Log in
                             </Button>
                         </SignInButton>
                         <SignInButton mode="modal">
-                            <Button size="sm">
+                            <Button>
                                 Take a tour for free
                             </Button>
                         </SignInButton>
@@ -42,7 +42,7 @@ export const Navbar = () => {
                 )}
                 {isAuthenticated && !isLoading && (
                     <>
-                        <Button variant="ghost" size="sm" asChild>
+                        <Button  asChild>
                             <Link href="/documents">
                                 Enter Notion
                             </Link>
