@@ -6,11 +6,14 @@ import { usePathname } from "next/navigation";
 import { useRef, ElementRef, useState, useEffect, use } from "react";
 import { useMediaQuery } from "usehooks-ts";
 import { UserItem } from "./user-item";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 
 export const Navigation = () => {
     const pathname = usePathname();
     const isMobile = useMediaQuery("(max-width: 768px)");
+    const documents = useQuery(api.documents.get);
 
 
     const isResizinfRef = useRef(false);
@@ -29,10 +32,10 @@ export const Navigation = () => {
     }, [isMobile]);
 
     useEffect(() => {
-        if (isMobile){
+        if (isMobile) {
             collapse();
         }
-    })  
+    })
 
     const handleMouseDown = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
         event.preventDefault();
@@ -75,32 +78,32 @@ export const Navigation = () => {
             sidebarRef.current.style.width = isMobile ? "100%" : "240px";
             navbarRef.current.style.setProperty(
                 "width",
-                isMobile ? "0": "calc(100% - 240px)"
+                isMobile ? "0" : "calc(100% - 240px)"
 
             )
             navbarRef.current.style.setProperty(
                 "left",
-                 isMobile ? "100%" : "240px");
-                 setTimeout(() => {
-                     setIsResetting(false);
-                 }, 300);
+                isMobile ? "100%" : "240px");
+            setTimeout(() => {
+                setIsResetting(false);
+            }, 300);
         }
     }
 
     const collapse = () => {
-    if (sidebarRef.current && navbarRef.current) {
-        setIsCollapsed(true);
-        setIsResetting(true);
+        if (sidebarRef.current && navbarRef.current) {
+            setIsCollapsed(true);
+            setIsResetting(true);
 
-        sidebarRef.current.style.width = "0";
-        navbarRef.current.style.setProperty("width", "100%");
-        navbarRef.current.style.setProperty("left", "0");
+            sidebarRef.current.style.width = "0";
+            navbarRef.current.style.setProperty("width", "100%");
+            navbarRef.current.style.setProperty("left", "0");
 
-        setTimeout(() => {
-            setIsResetting(false);
-        }, 300);
+            setTimeout(() => {
+                setIsResetting(false);
+            }, 300);
+        }
     }
-}
 
 
     return (
@@ -113,7 +116,7 @@ export const Navigation = () => {
                     isMobile && "w-0",
                 )}
             >
-                <div 
+                <div
                     onClick={collapse}
                     role="button"
                     className={cn(
@@ -126,9 +129,10 @@ export const Navigation = () => {
                     <UserItem />
                 </div>
                 <div className="mt-4">
-                    <p>
-                        Documents
-                    </p>
+                    {documents?.map((document) => (
+                        <p key={document._id}>
+                            {document.title}</p>
+                    ))}
                 </div>
                 <div
                     onMouseDown={handleMouseDown}
@@ -143,10 +147,10 @@ export const Navigation = () => {
                     isMobile && "left-0 w-full")}
             >
                 <nav className="bg-transparent px-3 py-2 w-full">
-                    {isCollapsed && <MenuIcon 
-                    onClick={resetWidth}
-                    role="button"
-                    className="h-6 w-6 text-muted-foreground" />}
+                    {isCollapsed && <MenuIcon
+                        onClick={resetWidth}
+                        role="button"
+                        className="h-6 w-6 text-muted-foreground" />}
                 </nav>
             </div>
 
