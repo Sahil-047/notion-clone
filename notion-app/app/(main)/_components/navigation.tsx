@@ -43,12 +43,12 @@ export const Navigation = () => {
         }
     }, [isMobile]);
 
-    // Fixed: Added [isMobile] dependency to prevent unnecessary collapses
+    
     useEffect(() => {
         if (isMobile) {
             collapse();
         }
-    }, [isMobile]); // Dependency array added here
+    }, [isMobile]); 
 
     const handleMouseDown = (
         event: React.MouseEvent<HTMLDivElement, MouseEvent>
@@ -155,16 +155,16 @@ export const Navigation = () => {
                         onClick={handleCreate}
                         icon={Plus}
                         label="Add a page" />
-                          <Popover>
-                            <PopoverTrigger className="w-full mt-4">
-                            <Item label="Trash" icon={Trash}/>
-                            </PopoverTrigger>
-                            <PopoverContent 
+                    <Popover>
+                        <PopoverTrigger className="w-full mt-4">
+                            <Item label="Trash" icon={Trash} />
+                        </PopoverTrigger>
+                        <PopoverContent
                             className="p-0 w-72"
                             side={isMobile ? "bottom" : "right"}>
-                               <TrashBox />
-                            </PopoverContent>
-                          </Popover>
+                            <TrashBox />
+                        </PopoverContent>
+                    </Popover>
                 </div>
                 <div
                     onMouseDown={handleMouseDown}
