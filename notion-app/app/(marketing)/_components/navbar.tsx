@@ -13,6 +13,10 @@ import Link from "next/link";
 export const Navbar = () => {
     const { isAuthenticated, isLoading } = useConvexAuth();
     const scrolled = useScrollTop();
+    interface NavbarProps {
+        isCollapsed: boolean;
+        onResetWidth: () => void;
+    }
 
 
     return (
@@ -42,7 +46,7 @@ export const Navbar = () => {
                 )}
                 {isAuthenticated && !isLoading && (
                     <>
-                        <Button  asChild>
+                        <Button asChild>
                             <Link href="/documents">
                                 Enter Notion
                             </Link>

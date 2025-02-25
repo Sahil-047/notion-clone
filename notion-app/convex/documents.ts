@@ -223,6 +223,73 @@ export const getSearch = query({
             .order("desc")
             .collect();
 
-            return documents;
+        return documents;
     }
 });
+
+export const getById = query({
+    args: { documentId: v.id("documents") },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+
+        // 1. First check if document exists
+        const document = await ctx.db.get(args.documentId);
+        if (!document) {
+            return null; // Don't throw error, return null for client handling
+        }
+
+        // 2. Handle published documents
+        if (document.isPublished && !document.isArchived) {
+            return document; // Public access allowed
+        }
+
+        // 3. Authentication check for private docs
+        if (!identity) {
+            throw new Error("Not authenticated"); // More standard error message
+        }
+
+        // 4. Authorization check
+        if (document.userId !== identity.subject) {
+            throw new Error("Unauthorized");
+        }
+
+        return document;
+    }
+});
+
+
+export const update = mutation({
+    args: {
+        id: v.id("documents"),
+        title: v.optional(v.string()),
+        content: v.optional(v.string()),
+        coverImage: v.optional(v.string()),
+        icon: v.optional(v.string()),
+        isPublished: v.optional(v.boolean())
+    },
+    handler: async (ctx, args) => {
+        const identity = await ctx.auth.getUserIdentity();
+
+        if (!identity) {
+            throw new Error("Unauthenticated")
+        }
+
+        const userId = identity.subject;
+        const {id, ...rest} = args
+
+        const exisitingDocument = await ctx.db.get(args.id)
+
+        if(!exisitingDocument){
+            throw new Error("not found!!!")
+        }
+        if (exisitingDocument.userId !== userId){
+            throw new Error("Unauthorized")
+        }
+
+        const document = await ctx.db.patch(args.id,{
+            ...rest,
+        })
+        return document;
+
+    }
+})
