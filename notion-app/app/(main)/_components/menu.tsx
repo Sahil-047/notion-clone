@@ -21,25 +21,25 @@ interface MenuProps {
     documentId: Id<"documents">
 }
 
-export const Menu = ({
+export function Menu({
     documentId
-}: MenuProps) => {
+}: MenuProps) {
     const router = useRouter();
     const { user } = useUser();
 
     const archive = useMutation(api.documents.archive);
 
     const onArchive = () => {
-        const promise = archive({ id: documentId })
+        const promise = archive({ id: documentId });
 
         toast.promise(promise, {
             loading: "Moving to trash...",
             success: "Note moved to trash!",
             error: "Failed to archive note"
-        })
+        });
 
-        router.push("/documents")
-    }
+        router.push("/documents");
+    };
 
     return (
         <DropdownMenu>
@@ -61,7 +61,7 @@ export const Menu = ({
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
-    )
+    );
 }
 
 Menu.Skeleton = function MenuSkeleton() {
