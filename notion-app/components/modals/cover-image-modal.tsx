@@ -16,7 +16,7 @@ import { Id } from "@/convex/_generated/dataModel";
 
 export const CoverImageModal = () => {
     const [file, setFile] = useState<File>();
-    const [isSubmiting, setIsSubmitting] = useState(false)
+    const [isSubmiting, setIsSubmitting] = useState(false);
     const coverImage = useCoverImage();
     const { edgestore } = useEdgeStore();
     const update = useMutation(api.documents.update);
@@ -30,29 +30,29 @@ export const CoverImageModal = () => {
 
     const onChange = async (file?: File) => {
         if (file) {
-            setIsSubmitting(true);
-            setFile(file)
-            let res;
-            if (coverImage.url) {
-                res = await edgestore.publicFiles.upload({
-                    file,
-                    options: {
-                        replaceTargetUrl: coverImage.url
-                    }
-                })
-            } else {
+            try {
+                setIsSubmitting(true);
+                setFile(file);
 
                 const res = await edgestore.publicFiles.upload({
-                    file
-                })
-            };
-            if (res) {
-                await update({
-                    id: params.documentId as Id<"documents">,
-                    coverImage: res.url
+                    file,
+                    options: coverImage.url ? {
+                        replaceTargetUrl: coverImage.url
+                    } : undefined
                 });
+
+                if (res?.url) {
+                    await update({
+                        id: params.documentId as Id<"documents">,
+                        coverImage: res.url
+                    });
+                }
+                onClose();
+            } catch (error) {
+                console.error("Error uploading cover image:", error);
+            } finally {
+                setIsSubmitting(false);
             }
-            onClose();
         }
     }
 
