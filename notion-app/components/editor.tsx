@@ -14,20 +14,23 @@ interface EditorProps {
   editable?: boolean;
 }
 
-const Editor = ({ onChange, initialContent, editable }: EditorProps) => {
+const Editor = ({ onChange, initialContent, editable = true }: EditorProps) => {
   const { resolvedTheme } = useTheme();
-
   const { edgestore } = useEdgeStore();
 
   const handleUpload = async (file: File) => {
-    const res = await edgestore.publicFiles.upload({
-      file,
-    });
-
-    return res.url;
+    try {
+      const response = await edgestore.publicFiles.upload({
+        file,
+      });
+      return response.url;
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      throw error;
+    }
   };
 
-  const editor: BlockNoteEditor = useCreateBlockNote({
+  const editor = useCreateBlockNote({
     initialContent: initialContent
       ? (JSON.parse(initialContent) as PartialBlock[])
       : undefined,
@@ -35,16 +38,22 @@ const Editor = ({ onChange, initialContent, editable }: EditorProps) => {
   });
 
   const handleEditorChange = () => {
-    onChange(JSON.stringify(editor.document, null, 2));
+    try {
+      const content = JSON.stringify(editor.document, null, 2);
+      onChange(content);
+    } catch (error) {
+      console.error("Error saving content:", error);
+    }
   };
 
   return (
-    <div>
+    <div className="relative pl-[4rem] pt-[2rem] max-w-[850px]">
       <BlockNoteView
         editable={editable}
         editor={editor}
         theme={resolvedTheme === "dark" ? "dark" : "light"}
         onChange={handleEditorChange}
+         className="!block prose dark:prose-invert max-w-full"
       />
     </div>
   );
