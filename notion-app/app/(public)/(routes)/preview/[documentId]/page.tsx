@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useMemo } from "react";
+import { use, useMemo } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -10,30 +10,33 @@ import { Cover } from "@/components/cover";
 import { Skeleton } from "@/components/ui/skeleton";
 // import { PageProps } from "next/app";
 
-interface DocumentIdPageProps  {
-  params: {
+interface DocumentIdPageProps {
+  params: Promise<{
     documentId: Id<"documents">;
-  };
+  }>;
 }
 
 const DocumentIdPage = ({ params }: DocumentIdPageProps) => {
+  const resolvedParams = use(params); // Unwrap the params Promise
+
   const Editor = useMemo(
-    () => dynamic(() => import("@/components/editor"), { 
-      ssr: false,
-      loading: () => <Skeleton className="w-full h-[500px] rounded-md" />
-    }),
+    () =>
+      dynamic(() => import("@/components/editor"), {
+        ssr: false,
+        loading: () => <Skeleton className="w-full h-[500px] rounded-md" />,
+      }),
     []
   );
 
   const document = useQuery(api.documents.getById, {
-    documentId: params.documentId
+    documentId: resolvedParams.documentId, // Use unwrapped params
   });
 
   const update = useMutation(api.documents.update);
 
   const onChange = (content: string) => {
     update({
-      id: params.documentId,
+      id: resolvedParams.documentId, // Use unwrapped params
       content,
     });
   };

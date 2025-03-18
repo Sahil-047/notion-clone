@@ -8,32 +8,35 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Toolbar } from "@/components/toolbar";
 import { Cover } from "@/components/cover";
 import { Skeleton } from "@/components/ui/skeleton";
-// import { PageProps } from "next/app";
+import { use } from "react"; // Import React.use
 
-interface DocumentIdPageProps  {
-  params: {
+interface DocumentIdPageProps {
+  params: Promise<{
     documentId: Id<"documents">;
-  };
+  }>;
 }
 
 const DocumentIdPage = ({ params }: DocumentIdPageProps) => {
+  const resolvedParams = use(params); // Unwrap the params Promise
+
   const Editor = useMemo(
-    () => dynamic(() => import("@/components/editor"), { 
-      ssr: false,
-      loading: () => <Skeleton className="w-full h-[500px] rounded-md" />
-    }),
+    () =>
+      dynamic(() => import("@/components/editor"), {
+        ssr: false,
+        loading: () => <Skeleton className="w-full h-[500px] rounded-md" />,
+      }),
     []
   );
 
   const document = useQuery(api.documents.getById, {
-    documentId: params.documentId
+    documentId: resolvedParams.documentId, // Use unwrapped params
   });
 
   const update = useMutation(api.documents.update);
 
   const onChange = (content: string) => {
     update({
-      id: params.documentId,
+      id: resolvedParams.documentId, // Use unwrapped params
       content,
     });
   };
@@ -63,10 +66,7 @@ const DocumentIdPage = ({ params }: DocumentIdPageProps) => {
       <Cover url={document.coverImage} />
       <div className="md:max-w-3xl lg:max-w-4xl mx-auto">
         <Toolbar initialData={document} />
-        <Editor
-          onChange={onChange}
-          initialContent={document.content}
-        />
+        <Editor onChange={onChange} initialContent={document.content} />
       </div>
     </div>
   );
